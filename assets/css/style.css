@@ -1,0 +1,286 @@
+:root {
+    --primary-color: #0a3d62;
+    --secondary-color: #60a3bc;
+    --accent-color: #e58e26;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+}
+
+body {
+    background-color: #f5f5f5;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 15px 0;
+}
+
+.main-content {
+    padding: 20px;
+}
+
+.stat-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    border: none;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-card .card-body {
+    padding: 20px;
+}
+
+.stat-card .card-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.stat-card .card-icon i {
+    font-size: 24px;
+    color: #fff;
+}
+
+.stat-card .card-value {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.stat-card .card-label {
+    font-size: 16px;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.form-card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.form-card .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 10px 10px 0 0;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #072f4a;
+    border-color: #072f4a;
+}
+
+.form-label {
+    font-weight: 500;
+}
+
+.required-field::after {
+    content: "*";
+    color: red;
+    margin-left: 4px;
+}
+
+.form-section-title {
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.search-box {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.results-box {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.search-title {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.result-count {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.action-btn {
+    margin: 2px;
+}
+
+.btn-view {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.btn-edit {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.btn-print {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.vehicle-card {
+    transition: transform 0.2s;
+    margin-bottom: 20px;
+}
+
+.vehicle-card:hover {
+    transform: translateY(-5px);
+}
+
+.bg-light-primary {
+    background-color: rgba(10, 61, 98, 0.1);
+}
+
+.no-results {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.no-results i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+.login-container {
+    margin-top: 7vh;
+    margin-bottom: 7vh;
+}
+
+.login-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.login-card .card-header {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+.login-card .card-body {
+    padding: 2.5rem;
+}
+
+.login-logo {
+    max-width: 120px;
+    margin-bottom: 15px;
+}
+
+.form-control {
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(10, 61, 98, 0.25);
+    border-color: var(--secondary-color);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    padding: 0.75rem 1rem;
+}
+
+.btn-primary:hover {
+    background-color: #072f4a;
+    border-color: #072f4a;
+}
+
+.login-footer {
+    background-color: white;
+    border-top: 1px solid #eee;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.input-group-text {
+    background-color: transparent;
+    border-right: none;
+    padding-right: 0;
+}
+
+.password-input {
+    border-left: none;
+}
+
+.system-name {
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.role-selector {
+    margin-bottom: 1.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.role-selector .form-check {
+    padding: 0;
+}
+
+.role-selector label {
+    padding: 1rem;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    margin: 0;
+}
+
+.role-selector input[type="radio"] {
+    display: none;
+}
+
+.role-selector input[type="radio"]:checked + label {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.role-selector i {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.role-selector .admin-role {
+    border-right: 1px solid #dee2e6;
+}
