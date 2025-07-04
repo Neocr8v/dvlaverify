@@ -1,0 +1,18 @@
+[01-Jun-2025 12:37:47 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 12:39:55 UTC] PHP Parse error:  syntax error, unexpected token "endforeach", expecting "elseif" or "else" or "endif" in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 431
+[01-Jun-2025 12:40:06 UTC] PHP Parse error:  syntax error, unexpected token "endforeach", expecting "elseif" or "else" or "endif" in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 431
+[01-Jun-2025 12:40:51 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 12:42:43 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 13:16:26 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 13:18:52 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 13:19:52 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 13:20:00 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 13:21:19 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 22:08:58 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 22:12:54 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 22:13:50 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 22:14:56 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[01-Jun-2025 22:18:14 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[02-Jun-2025 05:48:10 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[02-Jun-2025 05:49:13 UTC] PHP Warning:  Undefined variable $baseUrl in /home/dvlaveri/public_html/src/views/user/dashboard.php on line 250
+[11-Jun-2025 15:36:29 UTC] Error updating certificate path: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'certificate_pdf_path' in 'SET'
