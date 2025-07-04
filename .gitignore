@@ -1,0 +1,30 @@
+# Security logs should not be committed
+logs/*.log
+
+# Keep logs directory structure
+!logs/.gitkeep
+
+# Environment files
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Dependencies
+vendor/
+node_modules/
+
+# Build artifacts
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

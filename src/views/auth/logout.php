@@ -1,27 +1,23 @@
-/XAMPP/xamppfiles/htdocs/dvlaregister/src/views/auth/logout.php
 <?php
-session_start();
+/**
+ * Secure Logout Functionality
+ * Enhanced with comprehensive security measures
+ */
 
-// Clear all session variables
-$_SESSION = array();
+// Include security utilities
+require_once __DIR__ . '/../../../config/security.php';
+require_once __DIR__ . '/../../../config/database.php';
 
-// If it's desired to kill the session cookie
-if (ini_get("session.use_cookies")) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000,
-        $params["path"], $params["domain"],
-        $params["secure"], $params["httponly"]
-    );
-}
+// Initialize secure session
+initSecureSession();
 
-// Clear remember me cookies if they exist
-setcookie('remember_user', '', time() - 3600, '/');
-setcookie('remember_token', '', time() - 3600, '/');
+// Set security headers
+setSecurityHeaders();
 
-// Destroy the session
-session_destroy();
+// Perform secure logout
+secureLogout();
 
-// Redirect to login page
-header('Location: login.php');
+// Redirect to login page with logout message
+header('Location: login.php?message=logged_out');
 exit;
 ?>
