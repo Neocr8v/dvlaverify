@@ -1,6 +1,15 @@
 <?php
-// Start with a completely new session
-session_start();
+/**
+ * Secure Login System with Comprehensive Security Measures
+ * Enhanced DVLA Vehicle Registration System Login
+ */
+
+// Include security utilities first
+require_once __DIR__ . '/../../../config/security.php';
+
+// Initialize secure session and set security headers
+initSecureSession();
+setSecurityHeaders();
 
 // Include database connection
 require_once __DIR__ . '/../../../config/database.php';
@@ -9,89 +18,151 @@ require_once __DIR__ . '/../../../config/database.php';
 $username = '';
 $role = 'user';
 $errors = [];
+$success_message = '';
+
+// Handle logout message
+if (isset($_GET['message']) && $_GET['message'] === 'logged_out') {
+    $success_message = 'You have been successfully logged out.';
+}
+
+// Validate existing session
+if (isset($_SESSION['user_id']) && validateSession()) {
+    // User is already logged in, redirect to appropriate dashboard
+    $redirect_url = ($_SESSION['role'] === 'admin') ? 
+                   '../../views/admin/dashboard.php' : 
+                   '../../views/user/dashboard.php';
+    header("Location: $redirect_url");
+    exit;
+}
+
+// Generate CSRF token for the form
+$csrf_token = generateCSRFToken();
 
 // Only process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get form data
-    $username = trim($_POST['username'] ?? '');
-    $password = $_POST['password'] ?? '';
-    $role = $_POST['role'] ?? 'user';
-    $remember = isset($_POST['remember']);
-    
-    // Validate
-    if (empty($username)) {
-        $errors[] = 'Username is required';
-    }
-    
-    if (empty($password)) {
-        $errors[] = 'Password is required';
-    }
-    
-    // Process login if no errors
-    if (empty($errors)) {
-        try {
-            $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
-            $stmt->execute(['username' => $username]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if ($user && password_verify($password, $user['password'])) {
-                // Role validation
-                if ($role === 'user' && $user['role'] === 'admin') {
-                    $errors[] = 'Please use the admin login option for administrator accounts';
-                } 
-                elseif ($role === 'admin' && $user['role'] !== 'admin') {
-                    $errors[] = 'You do not have administrator privileges';
-                } 
-                else {
-                    // Set session variables
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['username'] = $user['username'];
-                    $_SESSION['full_name'] = $user['full_name'] ?? $user['username'];
-                    $_SESSION['role'] = $user['role'];
-                    
-                    // Set remember me cookie if checked
-                    if ($remember) {
-                        $token = bin2hex(random_bytes(32));
-                        
-                        try {
-                            // Check if remember_token column exists
-                            $checkStmt = $pdo->prepare("SHOW COLUMNS FROM users LIKE 'remember_token'");
-                            $checkStmt->execute();
-                            
-                            if ($checkStmt->rowCount() > 0) {
-                                $expiry = date('Y-m-d H:i:s', time() + 30*24*60*60); // 30 days
-                                
-                                $stmt = $pdo->prepare("UPDATE users SET remember_token = :token, token_expires = :expires WHERE id = :id");
-                                $stmt->execute([
-                                    'token' => password_hash($token, PASSWORD_DEFAULT),
-                                    'expires' => $expiry,
-                                    'id' => $user['id']
-                                ]);
-                                
-                                // Set cookies
-                                setcookie('remember_user', $user['id'], time() + 30*24*60*60, '/');
-                                setcookie('remember_token', $token, time() + 30*24*60*60, '/');
-                            }
-                        } catch (PDOException $e) {
-                            // Ignore errors with remember me - not critical
-                        }
-                    }
-                    
-                    // Use JavaScript for redirect to avoid header issues
-                    $redirect_url = ($user['role'] === 'admin') ? 
-                                   '../../views/admin/dashboard.php' : 
-                                   '../../views/user/dashboard.php';
-                    
-                    echo "<script>window.location.href = '$redirect_url';</script>";
-                    exit;
-                }
-            } else {
-                $errors[] = 'Invalid username or password';
+    // Validate CSRF token first
+    $csrf_token_input = $_POST['csrf_token'] ?? '';
+    if (!validateCSRFToken($csrf_token_input)) {
+        $errors[] = 'Invalid security token. Please try again.';
+        logSecurityEvent('CSRF_VIOLATION', $_POST['username'] ?? 'unknown', 'Invalid CSRF token in login attempt');
+    } else {
+        // Get form data
+        $username = trim($_POST['username'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $role = $_POST['role'] ?? 'user';
+        $remember = isset($_POST['remember']);
+        
+        // Create identifier for rate limiting (combination of IP and username)
+        $rate_limit_identifier = ($_SERVER['REMOTE_ADDR'] ?? 'unknown') . '_' . $username;
+        
+        // Check rate limiting
+        $rate_limit = checkRateLimit($rate_limit_identifier);
+        if (!$rate_limit['allowed']) {
+            $remaining_minutes = ceil($rate_limit['remaining_time'] / 60);
+            $errors[] = "Too many failed login attempts. Account is locked for $remaining_minutes minutes.";
+            logSecurityEvent('RATE_LIMIT_EXCEEDED', $username, 'Login attempt blocked due to rate limiting');
+        } else {
+            // Basic validation
+            if (empty($username)) {
+                $errors[] = 'Username is required';
             }
-        } catch (PDOException $e) {
-            $errors[] = 'Database error: ' . $e->getMessage();
+            
+            if (empty($password)) {
+                $errors[] = 'Password is required';
+            }
+            
+            // Process login if no validation errors
+            if (empty($errors)) {
+                // Add timing attack protection delay
+                constantTimeDelay();
+                
+                try {
+                    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username LIMIT 1");
+                    $stmt->execute(['username' => $username]);
+                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    
+                    if ($user && password_verify($password, $user['password'])) {
+                        // Role validation
+                        if ($role === 'user' && $user['role'] === 'admin') {
+                            $errors[] = 'Please use the admin login option for administrator accounts';
+                        } 
+                        elseif ($role === 'admin' && $user['role'] !== 'admin') {
+                            $errors[] = 'You do not have administrator privileges';
+                        } 
+                        else {
+                            // Successful login - clear any failed attempts
+                            clearLoginAttempts($rate_limit_identifier);
+                            
+                            // Regenerate session ID for security
+                            regenerateSessionId();
+                            
+                            // Set session variables
+                            $_SESSION['user_id'] = $user['id'];
+                            $_SESSION['username'] = $user['username'];
+                            $_SESSION['full_name'] = $user['full_name'] ?? $user['username'];
+                            $_SESSION['role'] = $user['role'];
+                            $_SESSION['last_activity'] = time();
+                            $_SESSION['login_time'] = time();
+                            
+                            // Log successful login
+                            logSecurityEvent('SUCCESSFUL_LOGIN', $username, 'User logged in successfully');
+                            
+                            // Handle secure remember me functionality
+                            if ($remember) {
+                                $token = bin2hex(random_bytes(32));
+                                
+                                try {
+                                    // Check if remember_token column exists
+                                    $checkStmt = $pdo->prepare("SHOW COLUMNS FROM users LIKE 'remember_token'");
+                                    $checkStmt->execute();
+                                    
+                                    if ($checkStmt->rowCount() > 0) {
+                                        $expiry = date('Y-m-d H:i:s', time() + 30*24*60*60); // 30 days
+                                        
+                                        $stmt = $pdo->prepare("UPDATE users SET remember_token = :token, token_expires = :expires WHERE id = :id");
+                                        $stmt->execute([
+                                            'token' => password_hash($token, PASSWORD_DEFAULT),
+                                            'expires' => $expiry,
+                                            'id' => $user['id']
+                                        ]);
+                                        
+                                        // Set secure cookies with all security flags
+                                        setSecureCookie('remember_user', $user['id'], time() + 30*24*60*60);
+                                        setSecureCookie('remember_token', $token, time() + 30*24*60*60);
+                                    }
+                                } catch (PDOException $e) {
+                                    // Log error but don't fail login
+                                    logSecurityEvent('REMEMBER_TOKEN_ERROR', $username, 'Failed to set remember token');
+                                    error_log("Remember token error: " . $e->getMessage());
+                                }
+                            }
+                            
+                            // Proper HTTP redirect instead of JavaScript
+                            $redirect_url = ($user['role'] === 'admin') ? 
+                                           '../../views/admin/dashboard.php' : 
+                                           '../../views/user/dashboard.php';
+                            
+                            header("Location: $redirect_url");
+                            exit;
+                        }
+                    } else {
+                        // Failed login - record attempt and add timing protection
+                        recordFailedAttempt($rate_limit_identifier);
+                        constantTimeDelay();
+                        $errors[] = 'Invalid username or password';
+                    }
+                } catch (PDOException $e) {
+                    // Secure error handling - don't expose database details
+                    logSecurityEvent('DATABASE_ERROR', $username, 'Database error during login: ' . $e->getMessage());
+                    error_log("Login database error: " . $e->getMessage());
+                    $errors[] = 'A system error occurred. Please try again later.';
+                }
+            }
         }
     }
+    
+    // Regenerate CSRF token after processing
+    $csrf_token = generateCSRFToken();
 }
 ?>
 <!DOCTYPE html>
@@ -100,6 +171,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Vehicle Registration System</title>
+    
+    <!-- Security Meta Tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -146,10 +223,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 1rem;
         }
     </style>
-    <!-- Prevent page caching to avoid session issues -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
 </head>
 <body>
     <div class="container login-container">
@@ -163,6 +236,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     
                     <div class="card-body p-4">
+                        <?php if (!empty($success_message)): ?>
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success_message) ?>
+                            </div>
+                        <?php endif; ?>
+                        
                         <?php if (count($errors) > 0): ?>
                             <div class="alert alert-danger">
                                 <ul class="mb-0">
@@ -174,6 +253,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php endif; ?>
                         
                         <form method="POST" action="login.php">
+                            <!-- CSRF Protection -->
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                             <!-- Role Selection -->
                             <div class="role-selector row mb-4">
                                 <div class="col-6">
